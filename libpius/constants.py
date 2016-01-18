@@ -1,5 +1,4 @@
-# vim:shiftwidth=2:tabstop=2:expandtab:textwidth=80:softtabstop=2:ai:
-
+# vim:shiftwidth=4:tabstop=4:expandtab:textwidth=80:softtabstop=4:ai:
 import os
 
 VERSION = '2.2.1'
