@@ -238,9 +238,8 @@ class PiusSigner(object):
         filename_enc = self._tmpfile_path('pius_tmp.gpg')
         filename_dec = self._tmpfile_path('pius_tmp2')
         clean_files([filename, filename_enc, filename_dec])
-        tfile = open(filename, 'w')
-        tfile.write(magic_string)
-        tfile.close()
+        with open(filename, 'w') as fp:
+            fp.write(magic_string)
         cmd = [self.gpg] + self.gpg_base_opts + self.gpg_quiet_opts + [
             '--no-armor',
             '--always-trust',
@@ -275,9 +274,8 @@ class PiusSigner(object):
             debug('Resulting file %s not found' % filename_dec)
             clean_files([filename, filename_enc, filename_dec])
             return False
-        tfile = open(filename_dec, 'r')
-        line = tfile.readline()
-        tfile.close()
+        with open(filename_dec, 'r') as fp:
+            line = fp.readline()
         clean_files([filename, filename_enc, filename_dec])
         if line == magic_string:
             return True
@@ -394,7 +392,8 @@ class PiusSigner(object):
             os.unlink(self.tmp_keyring)
         # Some versions of gpg won't create the keyring automatically
         # thought most seem to... anyway, we touch the file just in case
-        open(self.tmp_keyring, 'w').close()
+        with open(self.tmp_keyring, 'w')as fp:
+            pass
 
     def encrypt_signed_uid(self, key, filename):
         """Encrypt the file we exported the signed UID to."""

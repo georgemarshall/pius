@@ -79,19 +79,18 @@ def parse_dotfile(parser):
     # if we have a config file, parse it
     opts = []
     if os.path.isfile(PIUS_RC):
-        fp = open(PIUS_RC, 'r')
-        for line in fp:
-            if line.startswith('#'):
-                continue
-            parts = sep.split(line.strip())
-            if not parts[0].startswith('--'):
-                parts[0] = '--%s' % parts[0]
-            if parser.has_option(parts[0]):
-                opts.extend(parts)
-            elif not parts[0] in VALID_OPTIONS:
-                print('WARNING: Invalid line "%s" in %s, ignoring.' %
-                      (line.strip(), PIUS_RC))
-        fp.close()
+        with open(PIUS_RC, 'r') as fp:
+            for line in fp:
+                if line.startswith('#'):
+                    continue
+                parts = sep.split(line.strip())
+                if not parts[0].startswith('--'):
+                    parts[0] = '--%s' % parts[0]
+                if parser.has_option(parts[0]):
+                    opts.extend(parts)
+                elif not parts[0] in VALID_OPTIONS:
+                    print('WARNING: Invalid line "%s" in %s, ignoring.' %
+                          (line.strip(), PIUS_RC))
 
     return opts
 

@@ -110,7 +110,8 @@ class PiusMailer(object):
         """Helper function to grab the right email body."""
         interpolation_dict = {'keyid': keyid, 'signer': signer, 'email': email}
         if self.message_text:
-            return open(self.message_text, 'r').read() % interpolation_dict
+            with open(self.message_text, 'r') as fp:
+                return fp.read() % interpolation_dict
         else:
             if self.no_pgp_mime:
                 return DEFAULT_NON_MIME_EMAIL_TEXT % interpolation_dict
@@ -161,7 +162,8 @@ class PiusMailer(object):
         # Side-note, if we ever turn to QP, be sure to use quoprimime.encode to
         # encode the payload.
         #
-        attached_sig.set_payload(open(filename, 'r').read())
+        with open(filename, 'r') as fp:
+            attached_sig.set_payload(fp.read())
         encrypted_body.attach(attached_sig)
 
         encrypted_body.__delitem__('MIME-Version')
@@ -174,9 +176,8 @@ class PiusMailer(object):
         tmpfile = os.path.join(self.tmp_dir, 'pius_tmp')
         signed_tmpfile = '%s.asc' % tmpfile
         clean_files([tmpfile, signed_tmpfile])
-        tfile = open(tmpfile, 'w')
-        tfile.write(dos_body)
-        tfile.close()
+        with open(tmpfile, 'w') as fp:
+            fp.write(dos_body)
         try:
             psigner.encrypt_and_sign_file(tmpfile, signed_tmpfile, keyid)
         except EncryptionKeyError:
@@ -195,7 +196,8 @@ class PiusMailer(object):
         pgp_data.add_header('Content-Disposition', 'inline',
                             filename='encrypted.asc')
         pgp_data.__delitem__('MIME-Version')
-        pgp_data.set_payload(open(signed_tmpfile, 'r').read())
+        with open(signed_tmpfile, 'r') as fp:
+            pgp_data.set_payload(fp.read())
 
         # This is the actual encrypt-signed PGP/Mime message
         msg.attach(pgp_ver)
@@ -215,7 +217,8 @@ class PiusMailer(object):
         part = email_mime_base('application', 'octet-stream')
         part.add_header('Content-Disposition', 'inline; filename="%s"' %
                         os.path.basename(filename))
-        part.set_payload(open(filename, 'r').read())
+        with open(filename, 'r') as fp:
+            part.set_payload(fp.read())
         msg.attach(part)
         return msg
 

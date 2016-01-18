@@ -47,18 +47,13 @@ class pgp_report(object):
         """Read our data file."""
         if not os.path.exists(self.datafile):
             return
-        f = open(self.datafile, 'r')
-        d = ''
-        for l in f:
-            d += l
-        self.sign_data = json.loads(d)
-        f.close()
+        with open(self.datafile, 'r') as fp:
+            self.sign_data = json.load(fp)
 
     def _write_datafile(self):
         """Write our data file."""
-        f = open(self.datafile, 'w')
-        f.write(json.dumps(self.sign_data))
-        f.close()
+        with open(self.datafile, 'w') as fp:
+            json.dump(self.sign_data, fp)
 
     def _get_wotsap_report(self):
         """Get wotsap report for a key."""
@@ -66,9 +61,8 @@ class pgp_report(object):
         # report = urllib2.urlopen(url)
         # self._parse_wotsap_report(report)
         # report.close()
-        f = open('/tmp/report', 'r')
-        self._parse_wotsap_report(f)
-        f.close()
+        with open('/tmp/report', 'r') as fp:
+            self._parse_wotsap_report(fp)
 
     def _parse_wotsap_report(self, report):
         """Parse the wotsap report."""

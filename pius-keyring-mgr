@@ -92,26 +92,26 @@ def parse_csv(filename, sep, name_field, email_field, fp_field, ignore_emails,
 
     ignore_email_list = LIST_SEP_RE.split(ignore_emails)
     ignore_fp_list = LIST_SEP_RE.split(ignore_fps)
-    report = open(filename, 'r')
     keys = []
-    for line in report:
-        line = line.strip()
-        # skip empty lines
-        if not line:
-            continue
-        parts = line.split(sep)
-        if BADKEYS_RE.search(parts[fp_field]):
-            continue
-        fp = parts[fp_field].replace(' ', '')
-        if (parts[fp_field] in ignore_fp_list
-            or parts[email_field] in ignore_email_list):
-            util.debug('Ignoring "%s" at user request' % line)
-            continue
-        keyid = keyid_from_fp(fp)
-        keys.append({'name': parts[name_field],
-                     'email': parts[email_field],
-                     'keyid': keyid,
-                     'fingerprint': fp})
+    with open(filename, 'r') as fp:
+        for line in fp:
+            line = line.strip()
+            # skip empty lines
+            if not line:
+                continue
+            parts = line.split(sep)
+            if BADKEYS_RE.search(parts[fp_field]):
+                continue
+            fp = parts[fp_field].replace(' ', '')
+            if (parts[fp_field] in ignore_fp_list
+                or parts[email_field] in ignore_email_list):
+                util.debug('Ignoring "%s" at user request' % line)
+                continue
+            keyid = keyid_from_fp(fp)
+            keys.append({'name': parts[name_field],
+                         'email': parts[email_field],
+                         'keyid': keyid,
+                         'fingerprint': fp})
     return keys
 
 
@@ -240,9 +240,8 @@ class KeyringBuilder(object):
         """Write out key to a file and call _import_key_file() on it."""
         # FIXME
         filename = self._tmpfile_path('pius_keyring_mgr.tmp.txt')
-        fh = open(filename, 'w')
-        fh.write(key['key'])
-        fh.close()
+        with open(filename, 'w') as fp:
+            fp.write(key['key'])
         self._import_key_file(filename)
         self._remove_file(filename)
 
@@ -267,7 +266,8 @@ From: %(from)s
 Subject: %(party)sPGP Keysignign Party: Can't find your key!''' % interp
         body = ''
         if self.mail_text:
-            body = open(self.mail_text, 'r').read() % interp
+            with open(self.mail_text, 'r') as fp:
+                body = fp.read() % interp
         else:
             body = DEFAULT_EMAIL_TEXT % interp
         return hdrs + '\n\n' + body

@@ -50,13 +50,12 @@ class SignState(object):
     def load_signed_keys(cls):
         if not os.path.exists(SignState.kPIUS_SIGNED_KEYS):
             return dict()
-        fp = open(SignState.kPIUS_SIGNED_KEYS, 'r')
-        data = fp.read()
-        try:
-            signstate = json.loads(data)
-        except:
-            signstate = dict((key, 'SIGNED') for key in data.strip().split("\n"))
-        fp.close()
+        with open(SignState.kPIUS_SIGNED_KEYS, 'r') as fp:
+            data = fp.read()
+            try:
+                signstate = json.loads(data)
+            except:
+                signstate = {key: 'SIGNED' for key in data.strip().split("\n")}
         return signstate
 
     @classmethod
@@ -71,6 +70,5 @@ class SignState(object):
             print('WARNING: There is a ~/.pius which is not a directory.'
                   ' Not storing state.')
             return
-        fp = open(SignState.kPIUS_SIGNED_KEYS, 'w')
-        fp.write(json.dumps(result))
-        fp.close()
+        with open(SignState.kPIUS_SIGNED_KEYS, 'w') as fp:
+            json.dump(result, fp)
